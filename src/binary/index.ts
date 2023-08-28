@@ -4,3 +4,5 @@ export {
   setFlag as bigEndianSetFlat,
   getFlag as bigEndianGetFlag,
 } from "./big-endian-boolean-byte-wrapper";
+
+export * from "./types";

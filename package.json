@@ -1,12 +1,31 @@
 {
     "name": "@hetwan/io",
+    "author": {
+        "name": "Jean Walrave",
+        "email": "jean.walrave@gmail.com"
+    },
+    "scripts": {
+        "build:bun": "tsup src/index.ts --format cjs,esm",
+        "build": "bun run build:bun --dts-resolve"
+    },
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "import": "./dist/index.mjs",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "license": "MIT",
-    "module": "src/index.ts",
     "type": "module",
     "devDependencies": {
-        "bun-types": "latest"
-    },
-    "peerDependencies": {
-        "typescript": "^5.0.0"
+        "bun-types": "latest",
+        "tsup": "^7.2.0",
+        "typescript": "latest"
     }
 }
