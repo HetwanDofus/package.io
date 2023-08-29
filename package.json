@@ -1,5 +1,8 @@
 {
     "name": "@hetwan/io",
+    "version": "0.0.1",
+    "license": "MIT",
+    "type": "module",
     "author": {
         "name": "Jean Walrave",
         "email": "jean.walrave@gmail.com"
@@ -11,9 +14,9 @@
     "files": [
         "dist"
     ],
-    "main": "dist/index.js",
-    "module": "dist/index.mjs",
-    "types": "dist/index.d.ts",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "require": "./dist/index.js",
@@ -21,8 +24,6 @@
             "types": "./dist/index.d.ts"
         }
     },
-    "license": "MIT",
-    "type": "module",
     "devDependencies": {
         "bun-types": "latest",
         "tsup": "^7.2.0",
