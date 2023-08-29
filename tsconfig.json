@@ -20,7 +20,8 @@
       "bun-types" // add Bun global
     ],
     "paths": {
-      "@hetwan/io/*": ["./src/*"]
+      "@hetwan/io/*": ["./src/*"],
+      "@hetwan/io": ["./src/index.ts"]
     }
   }
 }
