@@ -5,4 +5,4 @@ export {
   getFlag as bigEndianGetFlag,
 } from "./big-endian-boolean-byte-wrapper";
 
-export * from "./types";
+export { type BinaryDataReader, type BinaryDataWriter } from "./types";

@@ -109,6 +109,9 @@ export default class D2oGameDataProcess {
       });
   }
 
+  /**
+   * This is for testing purposes only
+   */
   private readSearchTable(): void {
     this.queryableFields.forEach((queryableField) => {
       const readingMethod = this.getReadFunction(

@@ -1,32 +1,35 @@
 {
-    "name": "@hetwan/io",
-    "version": "0.0.1",
-    "license": "MIT",
-    "type": "module",
-    "author": {
-        "name": "Jean Walrave",
-        "email": "jean.walrave@gmail.com"
-    },
-    "scripts": {
-        "build:bun": "tsup src/index.ts --format cjs,esm",
-        "build": "bun run build:bun --dts-resolve"
-    },
-    "files": [
-        "dist"
-    ],
-    "main": "./dist/index.js",
-    "module": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
-    "exports": {
-        ".": {
-            "require": "./dist/index.js",
-            "import": "./dist/index.mjs",
-            "types": "./dist/index.d.ts"
-        }
-    },
-    "devDependencies": {
-        "bun-types": "latest",
-        "tsup": "^7.2.0",
-        "typescript": "latest"
+  "name": "@hetwan/io",
+  "version": "0.0.2",
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Jean Walrave",
+    "email": "jean.walrave@gmail.com"
+  },
+  "scripts": {
+    "build:bun": "tsup src/index.ts --format cjs,esm",
+    "build": "bun run build:bun --dts-resolve"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
     }
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "tsup": "^7.2.0",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "ts-pattern": "^5.0.5"
+  }
 }

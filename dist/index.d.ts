@@ -53,98 +53,6 @@ interface BinaryDataWriter {
     setPointer(pointer: number): this;
 }
 
-declare class D2oGameDataProcess {
-    private readonly reader;
-    searchFieldsIndexes: Record<string, number>;
-    searchFieldsCounts: Record<string, number>;
-    searchFieldsTypes: Record<string, number>;
-    searchTable: Record<string, Record<string | number, number[]>>;
-    queryableFields: string[];
-    constructor(reader: BinaryDataReader);
-    private parseStream;
-    private getReadFunction;
-    getWriteFunction(type: number): Function;
-    private readSearchTable;
-}
-
-declare class D2oClass {
-    private context;
-    readonly id: number;
-    readonly name: string;
-    readonly packageName: string;
-    fields: D2oField[];
-    constructor(context: D2oContext, id: number, name: string, packageName: string);
-    write(writer: BinaryDataWriter, data: Record<string, unknown>): void;
-    read(reader: BinaryDataReader): Record<string, unknown>;
-    addField(reader: BinaryDataReader, fieldName: string): void;
-}
-declare class D2oField {
-    private context;
-    readonly name: string;
-    readData: Function;
-    private type;
-    private innerTypesNames;
-    private innerTypes;
-    private innerReadMethods;
-    constructor(context: D2oContext, name: string);
-    readType(reader: BinaryDataReader): void;
-    writeType(writer: BinaryDataWriter, type?: number, innerIndex?: number): void;
-    writeData(writer: BinaryDataWriter, data: unknown): void;
-    getReadMethod: (reader: BinaryDataReader, type: number) => Function;
-    getWriteMethod: (type: number) => Function;
-    private readInteger;
-    private writeInteger;
-    private readBoolean;
-    private writeBoolean;
-    private readString;
-    private writeString;
-    private readNumber;
-    private writeNumber;
-    private readI18n;
-    private writeI18n;
-    private readUint;
-    private writeUint;
-    private readVector;
-    private writeVector;
-    private readObject;
-    private writeObject;
-    isVector(): boolean;
-    isVectorOfObject(): boolean;
-    is2ndLevelVector(): boolean;
-}
-
-declare class D2oContext {
-    indexes: Map<number, number>;
-    classesDataIndexes: Map<number, number>;
-    classesDefinitions: Map<number, D2oClass>;
-    classesDefinitionsIndexes: Map<number, number>;
-    dataProcessor?: D2oGameDataProcess;
-}
-
-declare class Reader {
-    readonly data: Buffer;
-    private reader;
-    context: D2oContext;
-    constructor(data: Buffer);
-    getData(classesNames?: string[]): Record<string, unknown>[];
-    private readClasseDefinition;
-}
-
-declare class Writer {
-    private readonly context;
-    private writer;
-    private indexTable;
-    private searchTable;
-    constructor(context: D2oContext);
-    write(data: Record<string, unknown>[]): Buffer;
-    private createSearchTable;
-    private addSearchTableEntry;
-    private writeData;
-    private writeIndexTable;
-    private writeClassesDefinitions;
-    private writeSearchTable;
-}
-
 declare class BigEndianReader implements BinaryDataReader {
     static readonly INT_SIZE = 32;
     static readonly SHORT_SIZE = 16;
@@ -231,5 +139,100 @@ declare class BigEndianWriter implements BinaryDataWriter {
 
 declare const setFlag: (flag: number, offset: number, value: boolean) => number;
 declare const getFlag: (flag: number, offset: number) => boolean;
+
+declare class D2oGameDataProcess {
+    private readonly reader;
+    searchFieldsIndexes: Record<string, number>;
+    searchFieldsCounts: Record<string, number>;
+    searchFieldsTypes: Record<string, number>;
+    searchTable: Record<string, Record<string | number, number[]>>;
+    queryableFields: string[];
+    constructor(reader: BinaryDataReader);
+    private parseStream;
+    private getReadFunction;
+    getWriteFunction(type: number): Function;
+    /**
+     * This is for testing purposes only
+     */
+    private readSearchTable;
+}
+
+declare class D2oClass {
+    private context;
+    readonly id: number;
+    readonly name: string;
+    readonly packageName: string;
+    fields: D2oField[];
+    constructor(context: D2oContext, id: number, name: string, packageName: string);
+    write(writer: BinaryDataWriter, data: Record<string, unknown>): void;
+    read(reader: BinaryDataReader): Record<string, unknown>;
+    addField(reader: BinaryDataReader, fieldName: string): void;
+}
+declare class D2oField {
+    private context;
+    readonly name: string;
+    readData: Function;
+    private type;
+    private innerTypesNames;
+    private innerTypes;
+    private innerReadMethods;
+    constructor(context: D2oContext, name: string);
+    readType(reader: BinaryDataReader): void;
+    writeType(writer: BinaryDataWriter, type?: number, innerIndex?: number): void;
+    writeData(writer: BinaryDataWriter, data: unknown): void;
+    getReadMethod: (reader: BinaryDataReader, type: number) => Function;
+    getWriteMethod: (type: number) => Function;
+    private readInteger;
+    private writeInteger;
+    private readBoolean;
+    private writeBoolean;
+    private readString;
+    private writeString;
+    private readNumber;
+    private writeNumber;
+    private readI18n;
+    private writeI18n;
+    private readUint;
+    private writeUint;
+    private readVector;
+    private writeVector;
+    private readObject;
+    private writeObject;
+    isVector(): boolean;
+    isVectorOfObject(): boolean;
+    is2ndLevelVector(): boolean;
+}
+
+declare class D2oContext {
+    indexes: Map<number, number>;
+    classesDataIndexes: Map<number, number>;
+    classesDefinitions: Map<number, D2oClass>;
+    classesDefinitionsIndexes: Map<number, number>;
+    dataProcessor?: D2oGameDataProcess;
+}
+
+declare class Reader {
+    readonly data: Buffer;
+    private reader;
+    context: D2oContext;
+    constructor(data: Buffer);
+    getData(classesNames?: string[]): Record<string, unknown>[];
+    private readClasseDefinition;
+}
+
+declare class Writer {
+    private readonly context;
+    private writer;
+    private indexTable;
+    private searchTable;
+    constructor(context: D2oContext);
+    write(data: Record<string, unknown>[]): Buffer;
+    private createSearchTable;
+    private addSearchTableEntry;
+    private writeData;
+    private writeIndexTable;
+    private writeClassesDefinitions;
+    private writeSearchTable;
+}
 
 export { BigEndianReader, BigEndianWriter, BinaryDataReader, BinaryDataWriter, Reader as D2oReader, Writer as D2oWriter, getFlag as bigEndianGetFlag, setFlag as bigEndianSetFlat };
