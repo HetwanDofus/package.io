@@ -2,7 +2,7 @@ export {
   BigEndianReader,
   BigEndianWriter,
   bigEndianGetFlag,
-  bigEndianSetFlat,
+  bigEndianSetFlag,
   type BinaryDataReader,
   type BinaryDataWriter,
 } from "./binary";
