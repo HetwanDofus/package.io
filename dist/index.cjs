@@ -25,7 +25,7 @@ __export(src_exports, {
   D2oReader: () => Reader,
   D2oWriter: () => Writer,
   bigEndianGetFlag: () => getFlag,
-  bigEndianSetFlat: () => setFlag
+  bigEndianSetFlag: () => setFlag
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -999,5 +999,5 @@ var Writer = class {
   D2oReader,
   D2oWriter,
   bigEndianGetFlag,
-  bigEndianSetFlat
+  bigEndianSetFlag
 });

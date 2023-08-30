@@ -967,5 +967,5 @@ export {
   Reader as D2oReader,
   Writer as D2oWriter,
   getFlag as bigEndianGetFlag,
-  setFlag as bigEndianSetFlat
+  setFlag as bigEndianSetFlag
 };

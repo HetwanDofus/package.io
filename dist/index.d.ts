@@ -235,4 +235,4 @@ declare class Writer {
     private writeSearchTable;
 }
 
-export { BigEndianReader, BigEndianWriter, BinaryDataReader, BinaryDataWriter, Reader as D2oReader, Writer as D2oWriter, getFlag as bigEndianGetFlag, setFlag as bigEndianSetFlat };
+export { BigEndianReader, BigEndianWriter, BinaryDataReader, BinaryDataWriter, Reader as D2oReader, Writer as D2oWriter, getFlag as bigEndianGetFlag, setFlag as bigEndianSetFlag };
