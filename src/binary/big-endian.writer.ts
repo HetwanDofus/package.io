@@ -41,8 +41,6 @@ export default class BigEndianWriter implements BinaryDataWriter {
       return;
     }
 
-    console.log("expand", size, this.length, this.pointer);
-
     const nextLength = this.length + this.expandSize;
 
     const newBuffer = Buffer.allocUnsafe(nextLength);

@@ -19,8 +19,6 @@ export default class Reader {
 
     const dataLength = this.reader.readInt();
 
-    console.log({ dataLength });
-
     for (let i = 0; i < dataLength; i += 9) {
       const key = this.reader.readInt();
       const isUndiacritical = this.reader.readBoolean();

@@ -214,7 +214,6 @@ var BigEndianWriter = class _BigEndianWriter {
     if (this.pointer + size <= this.length) {
       return;
     }
-    console.log("expand", size, this.length, this.pointer);
     const nextLength = this.length + this.expandSize;
     const newBuffer = Buffer.allocUnsafe(nextLength);
     this.buffer.copy(newBuffer);
@@ -989,7 +988,6 @@ var Reader2 = class {
     const headerPosition = this.reader.readInt();
     this.reader.setPointer(headerPosition);
     const dataLength = this.reader.readInt();
-    console.log({ dataLength });
     for (let i = 0; i < dataLength; i += 9) {
       const key = this.reader.readInt();
       const isUndiacritical = this.reader.readBoolean();
