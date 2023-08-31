@@ -22,6 +22,8 @@ var src_exports = {};
 __export(src_exports, {
   BigEndianReader: () => BigEndianReader,
   BigEndianWriter: () => BigEndianWriter,
+  D2iReader: () => Reader2,
+  D2iWriter: () => Writer2,
   D2oReader: () => Reader,
   D2oWriter: () => Writer,
   bigEndianGetFlag: () => getFlag,
@@ -245,11 +247,11 @@ var BigEndianWriter = class _BigEndianWriter {
     if (this.pointer + size <= this.length) {
       return;
     }
-    const newBuffer = Buffer.allocUnsafe(
-      this.buffer.byteLength + this.expandSize
-    );
+    console.log("expand", size, this.length, this.pointer);
+    const nextLength = this.length + this.expandSize;
+    const newBuffer = Buffer.allocUnsafe(nextLength);
     this.buffer.copy(newBuffer);
-    this.length = newBuffer.byteLength;
+    this.length = nextLength;
     this.buffer = newBuffer;
     Bun.gc(true);
   }
@@ -421,17 +423,17 @@ var BigEndianWriter = class _BigEndianWriter {
     return this;
   }
   writeUTF(data) {
-    this.writeUShort(data.length);
-    const encodingBytelength = Buffer.byteLength(data, "utf-8");
+    const encodingBytelength = Buffer.byteLength(data, "utf8");
+    this.writeUShort(encodingBytelength);
     this.expandIfNeeded(encodingBytelength);
-    this.buffer.write(data, this.pointer, "utf-8");
+    this.buffer.write(data, this.pointer, encodingBytelength, "utf8");
     this.pointer += encodingBytelength;
     return this;
   }
   writeUTFBytes(data) {
-    const encodingBytelength = Buffer.byteLength(data, "utf-8");
+    const encodingBytelength = Buffer.byteLength(data, "utf8");
     this.expandIfNeeded(encodingBytelength);
-    this.buffer.write(data, this.pointer, "utf-8");
+    this.buffer.write(data, this.pointer, "utf8");
     this.pointer += encodingBytelength;
     return this;
   }
@@ -992,10 +994,165 @@ var Writer = class {
     this.writer.setPointer(currentPosition);
   }
 };
+
+// src/d2i/context.ts
+var D2iContext = class {
+  textSortIndexes = [];
+};
+
+// src/d2i/structures.ts
+var D2iEntry = class {
+  constructor(key, text, undiactricalText) {
+    this.key = key;
+    this.text = text;
+    this.undiactricalText = undiactricalText;
+  }
+};
+
+// src/d2i/reader.ts
+var Reader2 = class {
+  constructor(data) {
+    this.data = data;
+    this.reader = new BigEndianReader(data);
+  }
+  reader;
+  context = new D2iContext();
+  getData() {
+    const data = [];
+    const headerPosition = this.reader.readInt();
+    this.reader.setPointer(headerPosition);
+    const dataLength = this.reader.readInt();
+    console.log({ dataLength });
+    for (let i = 0; i < dataLength; i += 9) {
+      const key = this.reader.readInt();
+      const isUndiacritical = this.reader.readBoolean();
+      const dataPosition = this.reader.readInt();
+      const currentPosition = this.reader.getPointer();
+      this.reader.setPointer(dataPosition);
+      const text = this.reader.readUTF();
+      this.reader.setPointer(currentPosition);
+      if (isUndiacritical) {
+        const undiacriticalPosition = this.reader.readInt();
+        const currentPosition2 = this.reader.getPointer();
+        this.reader.setPointer(undiacriticalPosition);
+        const undiacriticalText = this.reader.readUTF();
+        this.reader.setPointer(currentPosition2);
+        data.push(new D2iEntry(key, text, undiacriticalText));
+        i += 4;
+        continue;
+      }
+      data.push(new D2iEntry(key, text));
+    }
+    let textLength = this.reader.readInt();
+    while (textLength > 0) {
+      let currentPosition = this.reader.getPointer();
+      const key = this.reader.readUTF();
+      const dataPosition = this.reader.readInt();
+      textLength -= this.reader.getPointer() - currentPosition;
+      currentPosition = this.reader.getPointer();
+      this.reader.setPointer(dataPosition);
+      const text = this.reader.readUTF();
+      data.push(new D2iEntry(key, text));
+      this.reader.setPointer(currentPosition);
+    }
+    let indexesLength = this.reader.readInt();
+    while (indexesLength > 0) {
+      this.context.textSortIndexes.push(this.reader.readInt());
+      indexesLength -= 4;
+    }
+    return data;
+  }
+};
+
+// src/d2i/writer.ts
+var Writer2 = class {
+  headerWriter;
+  contentWriter;
+  dataDuplicateTextMap = /* @__PURE__ */ new Map();
+  dataDuplicateUndiactricalText = /* @__PURE__ */ new Map();
+  constructor() {
+    this.headerWriter = BigEndianWriter.from(1024 * 1e3 * 10, 1024 * 1e3);
+    this.contentWriter = BigEndianWriter.from(
+      1024 * 1e3 * 50,
+      1024 * 1e3 * 5
+    );
+  }
+  write(data) {
+    this.contentWriter.writeInt(0);
+    this.headerWriter.writeInt(0);
+    data.filter((d) => typeof d.key === "number").forEach((entry) => {
+      this.headerWriter.writeInt(entry.key);
+      this.headerWriter.writeBoolean(!!entry.undiactricalText);
+      this.headerWriter.writeInt(this.contentWriter.getPointer());
+      this.dataDuplicateTextMap.set(
+        entry.text,
+        this.contentWriter.getPointer()
+      );
+      this.contentWriter.writeUTF(entry.text);
+      if (entry.undiactricalText) {
+        this.headerWriter.writeInt(this.contentWriter.getPointer());
+        this.dataDuplicateUndiactricalText.set(
+          entry.undiactricalText,
+          this.contentWriter.getPointer()
+        );
+        this.contentWriter.writeUTF(entry.undiactricalText);
+      }
+    });
+    const dataLength = this.headerWriter.getPointer() - 4;
+    const headerAfterDataPosition = this.headerWriter.getPointer();
+    this.headerWriter.setPointer(0);
+    this.headerWriter.writeInt(dataLength);
+    this.headerWriter.setPointer(headerAfterDataPosition);
+    this.headerWriter.writeInt(0);
+    data.filter((d) => typeof d.key === "string").forEach((entry) => {
+      this.headerWriter.writeUTF(entry.key);
+      const text = entry.text;
+      const duplicateTextPosition = this.dataDuplicateUndiactricalText.get(text) ?? this.dataDuplicateTextMap.get(text);
+      if (duplicateTextPosition) {
+        this.headerWriter.writeInt(duplicateTextPosition);
+      } else {
+        this.headerWriter.writeInt(this.contentWriter.getPointer());
+        this.contentWriter.writeUTF(text);
+      }
+    });
+    const textLength = this.headerWriter.getPointer() - headerAfterDataPosition - 4;
+    const headerAfterTextPosition = this.headerWriter.getPointer();
+    this.headerWriter.setPointer(headerAfterDataPosition);
+    this.headerWriter.writeInt(textLength);
+    this.headerWriter.setPointer(headerAfterTextPosition);
+    const indexesLengthPosition = this.headerWriter.getPointer();
+    this.headerWriter.writeInt(0);
+    data.filter((d) => typeof d.key === "number").sort((a, b) => {
+      if (a.text.length === 0) {
+        return -1;
+      }
+      if (b.text.length === 0 && a.text.length > 0) {
+        return 1;
+      }
+      return a.text.localeCompare(b.text, "en-US");
+    }).forEach((entry) => {
+      this.headerWriter.writeInt(entry.key);
+    });
+    const indexesLength = this.headerWriter.getPointer() - indexesLengthPosition - 4;
+    const headerAfterIndexesPosition = this.headerWriter.getPointer();
+    this.headerWriter.setPointer(indexesLengthPosition);
+    this.headerWriter.writeInt(indexesLength);
+    this.headerWriter.setPointer(headerAfterIndexesPosition);
+    const futureHeaderPosition = this.contentWriter.getPointer();
+    this.contentWriter.writeBuffer(this.headerWriter.getBuffer());
+    const futureContentPosition = this.contentWriter.getPointer();
+    this.contentWriter.setPointer(0);
+    this.contentWriter.writeInt(futureHeaderPosition);
+    this.contentWriter.setPointer(futureContentPosition);
+    return this.contentWriter.getBuffer();
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   BigEndianReader,
   BigEndianWriter,
+  D2iReader,
+  D2iWriter,
   D2oReader,
   D2oWriter,
   bigEndianGetFlag,

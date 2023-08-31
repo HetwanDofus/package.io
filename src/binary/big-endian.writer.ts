@@ -41,13 +41,15 @@ export default class BigEndianWriter implements BinaryDataWriter {
       return;
     }
 
-    const newBuffer = Buffer.allocUnsafe(
-      this.buffer.byteLength + this.expandSize
-    );
+    console.log("expand", size, this.length, this.pointer);
+
+    const nextLength = this.length + this.expandSize;
+
+    const newBuffer = Buffer.allocUnsafe(nextLength);
 
     this.buffer.copy(newBuffer);
 
-    this.length = newBuffer.byteLength;
+    this.length = nextLength;
     this.buffer = newBuffer;
 
     // Force GC to run in case of expand
@@ -316,13 +318,13 @@ export default class BigEndianWriter implements BinaryDataWriter {
   }
 
   writeUTF(data: string): this {
-    this.writeUShort(data.length);
+    const encodingBytelength = Buffer.byteLength(data, "utf8");
 
-    const encodingBytelength = Buffer.byteLength(data, "utf-8");
+    this.writeUShort(encodingBytelength);
 
     this.expandIfNeeded(encodingBytelength);
 
-    this.buffer.write(data, this.pointer, "utf-8");
+    this.buffer.write(data, this.pointer, encodingBytelength, "utf8");
 
     this.pointer += encodingBytelength;
 
@@ -330,11 +332,11 @@ export default class BigEndianWriter implements BinaryDataWriter {
   }
 
   writeUTFBytes(data: string): this {
-    const encodingBytelength = Buffer.byteLength(data, "utf-8");
+    const encodingBytelength = Buffer.byteLength(data, "utf8");
 
     this.expandIfNeeded(encodingBytelength);
 
-    this.buffer.write(data, this.pointer, "utf-8");
+    this.buffer.write(data, this.pointer, "utf8");
 
     this.pointer += encodingBytelength;
 

@@ -211,7 +211,7 @@ declare class D2oContext {
     dataProcessor?: D2oGameDataProcess;
 }
 
-declare class Reader {
+declare class Reader$1 {
     readonly data: Buffer;
     private reader;
     context: D2oContext;
@@ -220,7 +220,7 @@ declare class Reader {
     private readClasseDefinition;
 }
 
-declare class Writer {
+declare class Writer$1 {
     private readonly context;
     private writer;
     private indexTable;
@@ -235,4 +235,32 @@ declare class Writer {
     private writeSearchTable;
 }
 
-export { BigEndianReader, BigEndianWriter, BinaryDataReader, BinaryDataWriter, Reader as D2oReader, Writer as D2oWriter, getFlag as bigEndianGetFlag, setFlag as bigEndianSetFlag };
+declare class D2iContext {
+    textSortIndexes: number[];
+}
+
+declare class D2iEntry {
+    readonly key: string | number;
+    readonly text: string;
+    readonly undiactricalText?: string | undefined;
+    constructor(key: string | number, text: string, undiactricalText?: string | undefined);
+}
+
+declare class Reader {
+    readonly data: Buffer;
+    private reader;
+    context: D2iContext;
+    constructor(data: Buffer);
+    getData(): D2iEntry[];
+}
+
+declare class Writer {
+    private headerWriter;
+    private contentWriter;
+    private dataDuplicateTextMap;
+    private dataDuplicateUndiactricalText;
+    constructor();
+    write(data: D2iEntry[]): Buffer;
+}
+
+export { BigEndianReader, BigEndianWriter, BinaryDataReader, BinaryDataWriter, Reader as D2iReader, Writer as D2iWriter, Reader$1 as D2oReader, Writer$1 as D2oWriter, getFlag as bigEndianGetFlag, setFlag as bigEndianSetFlag };
