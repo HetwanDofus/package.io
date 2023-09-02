@@ -219,7 +219,6 @@ var BigEndianWriter = class _BigEndianWriter {
     this.buffer.copy(newBuffer);
     this.length = nextLength;
     this.buffer = newBuffer;
-    Bun.gc(true);
   }
   writeVarInt(data) {
     if (data <= _BigEndianWriter.MASK_01111111) {
