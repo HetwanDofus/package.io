@@ -104,6 +104,7 @@ export default class Writer {
           return 1;
         }
 
+        // Can disable to increase perf
         return a.text.localeCompare(b.text, "en-US");
       })
       .forEach((entry) => {

@@ -12,6 +12,14 @@ describe("d2i", () => {
 
     const data = reader.getData();
 
+    console.log(
+      data.filter((d) =>
+        d.text.includes(
+          "https://support.ankama.com/hc/fr/articles/360017472154"
+        )
+      )
+    );
+
     expect(data.length).toBeGreaterThan(0);
 
     const testBuffer = writer.write(data);

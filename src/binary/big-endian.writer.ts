@@ -51,7 +51,7 @@ export default class BigEndianWriter implements BinaryDataWriter {
     this.buffer = newBuffer;
 
     // Force GC to run in case of expand
-    Bun.gc(true);
+    //Bun.gc(true);
   }
 
   writeVarInt(data: number): this {
